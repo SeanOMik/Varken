@@ -16,8 +16,11 @@ class DBManager(object):
                                      password=self.server.password, ssl=self.server.ssl, database='varken',
                                      verify_ssl=self.server.verify_ssl)
         try:
-            version = self.influx.request('ping', expected_response_code=204).headers['X-Influxdb-Version']
-            self.logger.info('Influxdb version: %s', version)
+            version = self.influx.request('ping', expected_response_code=204).headers.get('X-Influxdb-Version')
+            if version is not None:
+                self.logger.info('Influxdb version: %s', version)
+            else:
+                self.logger.info('Influxdb version: unknown')
         except ConnectionError:
             self.logger.critical("Error testing connection to InfluxDB. Please check your url/hostname")
             exit(1)
